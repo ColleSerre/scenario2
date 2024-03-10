@@ -340,12 +340,6 @@ export default function TabOneScreen() {
             maximumValue={max}
             onValueChange={(value) => {
               progress.value = value;
-              dispatch({
-                type: "update",
-                payload: {
-                  mood: value.toFixed(2),
-                },
-              });
             }}
           />
         </View>
