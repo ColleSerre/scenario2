@@ -1,23 +1,51 @@
 import { View, Text } from "react-native";
 import { Visit } from "../../types/visits";
-const mockData: Visit[] = [
-  {
-    date: new Date(),
-    meds: [
-      {
-        name: "Paracetamol",
-        amount: 1,
-        recommended: 2,
-      },
-    ],
-    symptoms: ["Headache"],
-
-    mood: "5",
-    notes: "",
-  },
-];
+import { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabase";
 
 const History = () => {
+  const exampleUID = "1234";
+
+  const [visits, setVisits] = useState<Visit[]>([]);
+
+  const fetchPastVisits = async () => {
+    supabase
+      .from("visits")
+      .select("*")
+      .eq("user_id", exampleUID)
+      .then((data) => {
+        if (data.error) {
+          console.error(data.error);
+        } else {
+          setVisits(data.data);
+        }
+      });
+  };
+
+  useEffect(() => {
+    fetchPastVisits();
+  }, []);
+
+  if (visits.length === 0) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 30,
+          }}
+        >
+          No history found
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View
       style={{
@@ -53,7 +81,7 @@ const History = () => {
         >
           Alice
         </Text>
-        {mockData.map((visit) => (
+        {visits.map((visit) => (
           <View key={visit.date.toISOString()} style={{ gap: 10 }}>
             <Text
               style={{

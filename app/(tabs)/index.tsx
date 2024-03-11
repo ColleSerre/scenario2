@@ -13,7 +13,18 @@ export default function TabOneScreen() {
   const [patients, setPatients] = useState<Patient[]>([]);
 
   const fetchPatients = async () => {
-    const res = await fetch("http://localhost:8081/data");
+    const ids = await AsyncStorage.getItem("my-patientIDs");
+
+    const res = await fetch(
+      "https://tdlqjdjymqizudioimwx.supabase.co/functions/v1/patientInfos",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ "patient-id": ids }),
+      }
+    );
     const data = await res.json();
     setPatients(data.patients);
     setPatient(data.patients[0]);
@@ -354,9 +365,26 @@ export default function TabOneScreen() {
                 ...patient,
                 visits: [...(patient.visits ?? []), state],
               })
-            ).then(() => {
+            ).then(async () => {
               console.log(state);
-              // navigate to the next screen
+              const req = fetch(
+                "https://tdlqjdjymqizudioimwx.supabase.co/rest/v1/newVisit",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    "patient-id": "1234",
+                    visit_details: state,
+                  }),
+                }
+              );
+
+              const res = await req;
+              const data = await res.json();
+              console.log(data);
+
               router.push("/(tabs)/history");
             });
           }}
